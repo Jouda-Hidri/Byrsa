@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 class Node:
    def __init__(self, data):
@@ -7,42 +8,37 @@ class Node:
       self.data = data
 
 def addLeaf(node, data):
-  print("check if node is none")
   if node is not None:
-    print("node.data="+node.data)
     if line < node.data:
       if node.left is None:
         node.left = Node(line)
-        print("left added")
       else:
          addLeaf (node.left, data)
     else:
       if node.right is None:
         node.right = Node(line)
-        print("right added")
       else:
         addLeaf(node.right, data)
 
 
 def writeTree(node, file):
-    if node is not None:
-      print("left")
-      writeTree(node.left, file)
-      print("root")
-      file.write(node.data)
-      print("right")
-      writeTree(node.right, file)
+  if node is not None:
+    writeTree(node.left, file)
+    file.write(node.data)
+    writeTree(node.right, file)
 
-with open('sstable', 'w') as f:
-    root = None
-    for line in sys.stdin:
-        if line == "exit\n":
-            writeTree(root, f)
-            break
-        else:
-            print("adding <"+ line+">")
-            if root is None:
-                root = Node(line)
-            else :
-                addLeaf(root, line)
-            print("root.data="+root.data)
+root = None
+for line in sys.stdin:
+  if line == "write\n":
+    dt = datetime.now()
+    ts = datetime.timestamp(dt)
+    with open(str(ts), 'w') as f:
+      writeTree(root, f)
+      root = None
+  elif line == "exit\n":
+    break
+  else:
+    if root is None:
+      root = Node(line)
+    else :
+      addLeaf(root, line)
