@@ -1,7 +1,7 @@
 import sys
 from datetime import datetime
 
-root = None
+tree = None
 segments = []
 
 class Node:
@@ -30,14 +30,14 @@ def writeTree(node, file):
     writeTree(node.right, file)
 
 def write():
-  global root
+  global tree
   global segments
   path = str(datetime.timestamp(datetime.now())) # todo current segment also should be global
   segments.append(path) # todo create new segment only when current is too big
   print("> segments size="+str(len(segments)))
   with open(path, 'w') as f:
-    writeTree(root, f)
-    root = None
+    writeTree(tree, f)
+    tree = None
 
 def merge():
   global segments
@@ -79,9 +79,9 @@ for line in sys.stdin:
   elif line == "exit\n":
     break
   else:
-    if root is None:
-      root = Node(line)
+    if tree is None:
+      tree = Node(line)
     else :
-      addLeaf(root, line)
+      addLeaf(tree, line)
       # todo auto write files, auto merge files
       # todo implement read
