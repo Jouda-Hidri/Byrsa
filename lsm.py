@@ -2,6 +2,7 @@ import sys
 from datetime import datetime
 
 root = None
+segments = []
 
 class Node:
    def __init__(self, data):
@@ -28,14 +29,18 @@ def writeTree(node, file):
     file.write(node.data)
     writeTree(node.right, file)
 
-segments = []
+def write():
+  global root
+  global segments
+  path = str(datetime.timestamp(datetime.now())) # todo current segment also should be global
+  segments.append(path) # todo create new segment only when current is too big
+  with open(path, 'w') as f:
+    writeTree(root, f)
+    root = None
+
 for line in sys.stdin:
   if line == "write\n": # todo auto merge when file size reaches some threshold
-    path = str(datetime.timestamp(datetime.now()))
-    segments.append(path)
-    with open(path, 'w') as f:
-      writeTree(root, f)
-      root = None
+    write()
   elif line == "merge\n": # todo auto merge after 4 segments, to have a fixed number of segments
       with open(segments[0], 'r') as segment1, open(segments[1], 'r') as segment2, open("sstable", 'w') as sstable:
         lines1 = segment1.readlines()
@@ -44,7 +49,7 @@ for line in sys.stdin:
         j = 0
         while ( i < len(lines1) and j < len(lines2)):
           line1IsDuplicate = i+1 < len(lines1) and lines1[i] == lines1 [i+1]
-          line2IsDuplicate = j+1 < len(lines2) and lines2[j] == lines2 [i+1]
+          line2IsDuplicate = j+1 < len(lines2) and lines2[j] == lines2 [j+1]
           if(line1IsDuplicate or line2IsDuplicate):
             if(line1IsDuplicate):
               i+=1
