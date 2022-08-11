@@ -78,6 +78,10 @@ for line in sys.stdin:
     merge()
   elif line == "exit\n":
     break
+  elif line.startswith("read "):
+    key = line.replace('read ', '')
+    print ("read key="+ key)
+    # todo grep last line with key
   else:
     if tree is None:
       tree = Node(line)
