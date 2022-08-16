@@ -10,9 +10,13 @@ class Node:
       self.right = None
       self.data = data
 
+def getKey(line):
+  #lets make ':' the separator
+  return line.split(":")[0]
+
 def addLeaf(node, data):
   if node is not None:
-    if line < node.data:
+    if getKey(line) < getKey(node.data):
       if node.left is None:
         node.left = Node(line)
       else:
@@ -32,10 +36,11 @@ def writeTree(node, file):
 def write():
   global tree
   global segments
+   # todo rename to sstable
   path = "sst/"+str(datetime.timestamp(datetime.now())) # todo current segment also should be global
   segments.append(path) # todo create new segment only when current is too big
   print("> segments size="+str(len(segments)))
-  with open(path, 'w') as f: # todo rename to sstable
+  with open(path, 'w') as f:
     writeTree(tree, f)
     tree = None
 
@@ -45,12 +50,12 @@ def read(key):
     i = 0
     result = None
     while(i<len(lines)):
-      if(lines[i].startswith(key)): # later split based on the coma
+      if(getKey(lines[i])==key):
         result = lines[i]
       i+=1
     return result
 
-def merge(): # todo remove duplication while merging, keep last
+def merge():
   global segments
   with open(segments[0], 'r') as segment1, open(segments[1], 'r') as segment2, open('sstable', 'w') as sstable:
     lines1 = segment1.readlines()
@@ -58,19 +63,19 @@ def merge(): # todo remove duplication while merging, keep last
     i = 0
     j = 0
     while ( i < len(lines1) and j < len(lines2)):
-      line1IsDuplicate = i+1 < len(lines1) and lines1[i] == lines1 [i+1]
-      line2IsDuplicate = j+1 < len(lines2) and lines2[j] == lines2 [j+1]
+      line1IsDuplicate = i+1 < len(lines1) and getKey(lines1[i]) == getKey(lines1 [i+1])
+      line2IsDuplicate = j+1 < len(lines2) and getKey(lines2[j]) == getKey(lines2 [j+1])
       if(line1IsDuplicate or line2IsDuplicate):
         if(line1IsDuplicate):
           i+=1
         if(line2IsDuplicate):
           j+=1
-      elif(lines1[i] == lines2[j]):
+      elif(getKey(lines1[i]) == getKey(lines2[j])):
         print(lines1[i]+"=="+lines2[j])
         sstable.write(lines2[j]) #lines2 later than lines1
         i+=1
         j+=1
-      elif (lines1[i] < lines2[j]):
+      elif (getKey(lines1[i]) < getKey(lines2[j])):
         sstable.write(lines1[i])
         i+=1
       else:
@@ -99,8 +104,10 @@ for line in sys.stdin:
     result = read(key)
     print (result)
   else:
+    print("key="+getKey(line))
     if tree is None:
       tree = Node(line)
     else :
       addLeaf(tree, line)
       # todo auto write files, auto merge files
+      # todo implement key: comma separated
