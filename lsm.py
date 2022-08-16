@@ -32,10 +32,10 @@ def writeTree(node, file):
 def write():
   global tree
   global segments
-  path = str(datetime.timestamp(datetime.now())) # todo current segment also should be global
+  path = "sst/"+str(datetime.timestamp(datetime.now())) # todo current segment also should be global
   segments.append(path) # todo create new segment only when current is too big
   print("> segments size="+str(len(segments)))
-  with open(path, 'w') as f:
+  with open(path, 'w') as f: # todo rename to sstable
     writeTree(tree, f)
     tree = None
 
