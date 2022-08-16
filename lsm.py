@@ -39,6 +39,17 @@ def write():
     writeTree(tree, f)
     tree = None
 
+def read(key):
+  with open('sstable', 'r') as sstable:
+    lines = sstable.readlines()
+    i = 0
+    result = None
+    while(i<len(lines)):
+      if(lines[i].startswith(key)): # later split based on the coma
+        result = lines[i]
+      i+=1
+    return result
+
 def merge():
   global segments
   with open(segments[0], 'r') as segment1, open(segments[1], 'r') as segment2, open('sstable', 'w') as sstable:
@@ -79,13 +90,12 @@ for line in sys.stdin:
   elif line == "exit\n":
     break
   elif line.startswith("read "):
-    key = line.replace('read ', '')
-    print ("read key="+ key)
-    # todo grep last line with key
+    key = line.replace('read ', '').replace("\n", "")
+    result = read(key)
+    print (result)
   else:
     if tree is None:
       tree = Node(line)
     else :
       addLeaf(tree, line)
       # todo auto write files, auto merge files
-      # todo implement read
