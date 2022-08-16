@@ -50,7 +50,7 @@ def read(key):
       i+=1
     return result
 
-def merge():
+def merge(): # todo remove duplication while merging, keep last
   global segments
   with open(segments[0], 'r') as segment1, open(segments[1], 'r') as segment2, open('sstable', 'w') as sstable:
     lines1 = segment1.readlines()
@@ -65,7 +65,12 @@ def merge():
           i+=1
         if(line2IsDuplicate):
           j+=1
-      elif (lines1[i] <= lines2[j]):
+      elif(lines1[i] == lines2[j]):
+        print(lines1[i]+"=="+lines2[j])
+        sstable.write(lines2[j]) #lines2 later than lines1
+        i+=1
+        j+=1
+      elif (lines1[i] < lines2[j]):
         sstable.write(lines1[i])
         i+=1
       else:
