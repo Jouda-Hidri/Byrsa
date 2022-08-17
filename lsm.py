@@ -3,9 +3,8 @@ import os
 from datetime import datetime
 
 tree = None
-# todo rename to sstable
-path = "sst/"+str(datetime.timestamp(datetime.now()))
-segments = [path]
+path = None
+segments = []
 
 class Node:
    def __init__(self, data):
@@ -45,21 +44,10 @@ def createSegment():
   global path
   global segments
   global tree
-  path = "sst/"+str(datetime.timestamp(datetime.now()))
+  path = "segments/"+str(datetime.timestamp(datetime.now()))
   segments.append(path)
   print("> segments size="+str(len(segments)))
   tree = None
-
-def read(key):
-  with open('sstable', 'r') as sstable:
-    lines = sstable.readlines()
-    i = 0
-    result = None
-    while(i<len(lines)):
-      if(getKey(lines[i])==key):
-        result = lines[i]
-      i+=1
-    return result
 
 def merge():
   global segments
@@ -102,6 +90,18 @@ def merge():
       print(f.read())
   print("----------")
 
+def read(key):
+  with open('sstable', 'r') as sstable:
+    lines = sstable.readlines()
+    i = 0
+    result = None
+    while(i<len(lines)):
+      if(getKey(lines[i])==key):
+        result = lines[i]
+      i+=1
+    return result
+
+createSegment()
 for line in sys.stdin:
   if line == "exit\n":
     break
@@ -123,4 +123,5 @@ for line in sys.stdin:
     if len(segments) > 2:
       merge()
       # fixme what to do with the merged file? merge it again with other segments ?
-      # todo replication and rebalancing
+      # for now sstable would be rewritten everytime there's merge, means old data would be lost
+      # todo partitioning and rebalancing
