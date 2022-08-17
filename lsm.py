@@ -63,6 +63,7 @@ def read(key):
 
 def merge():
   global segments
+  global path
   with open(segments[0], 'r') as segment1, open(segments[1], 'r') as segment2, open('sstable', 'w') as sstable:
     lines1 = segment1.readlines()
     lines2 = segment2.readlines()
@@ -93,6 +94,11 @@ def merge():
     while ( j < len(lines2) ):
       sstable.write(lines2[j])
       j+=1
+  # todo delete the 2 segments
+  # each time segment size > 2 => merge
+  os.remove(segments[0])
+  os.remove(segments[1])
+  segments = [path] # keep only current path
   print("----------")
   with open('sstable', 'r') as f:
       print(f.read())
