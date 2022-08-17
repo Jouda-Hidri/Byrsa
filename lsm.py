@@ -1,4 +1,5 @@
 import sys
+import os
 from datetime import datetime
 
 tree = None
@@ -98,10 +99,8 @@ def merge():
   print("----------")
 
 for line in sys.stdin:
-  if line == "write\n":
-    createSegment() # todo create segment when reaching threashold
-  elif line == "merge\n":
-    merge()
+  if line == "merge\n":
+    merge() # todo delete segments and save merged segment in the same folder
   elif line == "exit\n":
     break
   elif line.startswith("read "):
@@ -115,6 +114,10 @@ for line in sys.stdin:
     else :
       addLeaf(tree, line)
     write()
+    segmentSize = os.path.getsize(path)
+    print("Current segment size = "+str(segmentSize)+" bytes")
+    if segmentSize > 25:
+      createSegment()
       # todo auto merge files
       # current segment, create new each time current is too big
       # todo replication and rebalancing
