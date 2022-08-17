@@ -94,8 +94,6 @@ def merge():
     while ( j < len(lines2) ):
       sstable.write(lines2[j])
       j+=1
-  # todo delete the 2 segments
-  # each time segment size > 2 => merge
   os.remove(segments[0])
   os.remove(segments[1])
   segments = [path] # keep only current path
@@ -105,9 +103,7 @@ def merge():
   print("----------")
 
 for line in sys.stdin:
-  if line == "merge\n":
-    merge() # todo delete segments and save merged segment in the same folder
-  elif line == "exit\n":
+  if line == "exit\n":
     break
   elif line.startswith("read "):
     key = line.replace('read ', '').replace("\n", "")
@@ -124,6 +120,7 @@ for line in sys.stdin:
     print("Current segment size = "+str(segmentSize)+" bytes")
     if segmentSize > 25:
       createSegment()
-      # todo auto merge files
-      # current segment, create new each time current is too big
+    if len(segments) > 2:
+      merge()
+      # fixme what to do with the merged file? merge it again with other segments ?
       # todo replication and rebalancing
