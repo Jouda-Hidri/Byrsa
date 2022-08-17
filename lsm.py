@@ -2,7 +2,9 @@ import sys
 from datetime import datetime
 
 tree = None
-segments = []
+# todo rename to sstable
+path = "sst/"+str(datetime.timestamp(datetime.now()))
+segments = [path]
 
 class Node:
    def __init__(self, data):
@@ -11,7 +13,6 @@ class Node:
       self.data = data
 
 def getKey(line):
-  #lets make ':' the separator
   return line.split(":")[0]
 
 def addLeaf(node, data):
@@ -35,14 +36,18 @@ def writeTree(node, file):
 
 def write():
   global tree
-  global segments
-   # todo rename to sstable
-  path = "sst/"+str(datetime.timestamp(datetime.now())) # todo current segment also should be global
-  segments.append(path) # todo create new segment only when current is too big
-  print("> segments size="+str(len(segments)))
+  global path
   with open(path, 'w') as f:
     writeTree(tree, f)
-    tree = None
+
+def createSegment():
+  global path
+  global segments
+  global tree
+  path = "sst/"+str(datetime.timestamp(datetime.now()))
+  segments.append(path)
+  print("> segments size="+str(len(segments)))
+  tree = None
 
 def read(key):
   with open('sstable', 'r') as sstable:
@@ -94,7 +99,7 @@ def merge():
 
 for line in sys.stdin:
   if line == "write\n":
-    write()
+    createSegment() # todo create segment when reaching threashold
   elif line == "merge\n":
     merge()
   elif line == "exit\n":
@@ -109,5 +114,7 @@ for line in sys.stdin:
       tree = Node(line)
     else :
       addLeaf(tree, line)
-      # todo auto write files, auto merge files
-      # todo implement key: comma separated
+    write()
+      # todo auto merge files
+      # current segment, create new each time current is too big
+      # todo replication and rebalancing
