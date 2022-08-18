@@ -124,4 +124,3 @@ for line in sys.stdin:
       merge()
       # fixme what to do with the merged file? merge it again with other segments ?
       # for now sstable would be rewritten everytime there's merge, means old data would be lost
-      # todo partitioning and rebalancing
